@@ -1,20 +1,10 @@
 # V3-SEA-8 Malaysia Climate Workshop
 
-This workshop demonstrates how V3-SEA-8 climate data from multiple CMIP models can be used to compare historical and future climate conditions over Malaysia.
+This workshop demonstrates how V3-SEA-8 climate data from multiple CMIP models can be used to compare historical and future annual mean near-surface air temperature (`tas`) over Malaysia.
 
-The first notebook focuses on annual mean near-surface air temperature (`tas`) for Peninsular Malaysia, Sabah, and Sarawak. It walks through the full workflow directly inside the notebook:
+The notebook is designed for a local IDE workflow, such as VS Code, JupyterLab, or classic Jupyter Notebook. Running the raw NetCDF workflow directly from Google Colab is not recommended because large NetCDF/HDF5 reads from mounted Google Drive can fail unpredictably.
 
-- inspect the model/scenario folder structure
-- open example NetCDF files with `xarray`
-- load and merge regional shapefiles
-- mask climate grids to a selected Malaysia region
-- compute annual area-mean temperature
-- compute the 1995-2014 historical baseline
-- convert absolute temperature to anomaly relative to that baseline
-- compare historical, SSP1-2.6, SSP2-4.5, and SSP5-8.5
-- plot either a single-model result or a multi-model ensemble with shaded spread
-
-## Files In This Repository
+## Workshop Files
 
 ```text
 01_tas_malaysia_timeseries_workshop.ipynb
@@ -24,11 +14,21 @@ requirements.txt
 environment.yml
 ```
 
+## What The Notebook Does
+
+- inspect the model and scenario folder structure
+- open an example NetCDF file with `xarray`
+- load regional Malaysia shapefiles
+- mask climate grids to Peninsular Malaysia, Sabah, or Sarawak
+- compute annual area-mean temperature
+- compute the 1995-2014 historical baseline
+- convert absolute temperature to anomaly relative to that baseline
+- compare historical, SSP1-2.6, SSP2-4.5, and SSP5-8.5
+- plot either a single-model result or a multi-model ensemble with shaded spread
+
 ## Data You Need
 
-You need two data downloads:
-
-1. CCRS climate data folder containing model folders such as:
+You need the CCRS climate data folder containing model folders such as:
 
 ```text
 ACCESS-CM2/
@@ -39,7 +39,7 @@ NorESM2-MM/
 UKESM1-0-LL/
 ```
 
-2. Malaysia shapefile folder containing:
+You also need the Malaysia shapefile folders:
 
 ```text
 PENINSULAR_MALAYSIA/
@@ -47,11 +47,11 @@ SABAH/
 SARAWAK/
 ```
 
-The NetCDF data are large, so they are not expected to be committed directly to GitHub.
+The NetCDF data are large, so they should stay outside GitHub.
 
-## Recommended Data Layout
+## Recommended Local Layout
 
-Local layout beside the repository:
+This repository is expected to sit beside the original V3-SEA-8 data folder:
 
 ```text
 V3-SEA-8/
@@ -62,19 +62,24 @@ V3-SEA-8/
     CCRS/
       ACCESS-CM2/
       EC-Earth3/
+      MIROC6/
       ...
   utilizing-climate-rcm-datas/
     01_tas_malaysia_timeseries_workshop.ipynb
     config.py
+    README.md
 ```
 
-Alternative local layout in Downloads:
+The default `config.py` tries this layout first.
+
+Alternative local layout:
 
 ```text
 Downloads/
   V3-SEA-8-CCRS-data/
     ACCESS-CM2/
     EC-Earth3/
+    MIROC6/
     ...
   Malaysia-Shapefiles/
     PENINSULAR_MALAYSIA/
@@ -82,110 +87,27 @@ Downloads/
     SARAWAK/
 ```
 
-Google Colab layout in Google Drive:
-
-```text
-MyDrive/
-  V3-SEA-8-data/
-    CCRS/
-      ACCESS-CM2/
-      EC-Earth3/
-      ...
-    shapefiles/
-      PENINSULAR_MALAYSIA/
-      SABAH/
-      SARAWAK/
-```
-
-If your folders are somewhere else, edit `config.py`:
-
-```python
-CCRS_DATA_PATH = Path("path/to/your/CCRS")
-SHAPEFILES_PATH = Path("path/to/your/shapefiles")
-```
-
-You can also set environment variables:
+If your folders are somewhere else, edit `config.py` or set environment variables:
 
 ```text
 V3SEA8_CCRS
 V3SEA8_SHAPES
 ```
 
-## Option A: Run On Google Colab
+Example in Windows PowerShell:
 
-Colab avoids most local installation issues, but reading many large NetCDF files from Google Drive can be slower.
-
-Repository:
-
-```text
-https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+```powershell
+$env:V3SEA8_CCRS = "C:\path\to\CCRS"
+$env:V3SEA8_SHAPES = "C:\path\to\Malaysia-Shapefiles"
 ```
 
-Alternative Colab opening method:
+## Option A: Run Locally With Conda
 
-1. Go to `https://colab.research.google.com`
-2. Select `File -> Open notebook -> GitHub`
-3. Paste:
-
-```text
-https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
-```
-
-4. Open:
-
-```text
-01_tas_malaysia_timeseries_workshop.ipynb
-```
-
-Data setup for Colab:
-
-1. Upload/extract the CCRS and shapefile data to Google Drive:
-
-```text
-MyDrive/V3-SEA-8-data/CCRS
-MyDrive/V3-SEA-8-data/shapefiles
-```
-
-2. Run the first setup cell in the notebook. It will:
-   - install missing Python packages
-   - mount Google Drive
-   - clone this GitHub repository into `/content/utilizing-climate-rcm-datas`
-   - switch the notebook working directory to `/content/utilizing-climate-rcm-datas`
-   - validate the configured data paths
-3. If your data is in a different Drive folder, edit `config.py` or update the path variables in the notebook.
-
-For workshops, start with one model or two models:
-
-```python
-MODELS_TO_RUN = ["ACCESS-CM2"]
-```
-
-or:
-
-```python
-MODELS_TO_RUN = ["ACCESS-CM2", "MIROC6"]
-```
-
-Then switch to the full ensemble when ready:
-
-```python
-MODELS_TO_RUN = "all"
-```
-
-## Option B: Run Locally With Conda
-
-This is the most reliable local setup for geospatial packages.
-
-First clone the repository:
+This is the recommended setup because geospatial packages are usually smoother with conda.
 
 ```powershell
 git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
 cd utilizing-climate-rcm-datas
-```
-
-Then create the environment:
-
-```powershell
 conda env create -f environment.yml
 conda activate v3sea8-workshop
 jupyter lab
@@ -197,20 +119,15 @@ Open:
 01_tas_malaysia_timeseries_workshop.ipynb
 ```
 
-## Option C: Run Locally With pip
+## Option B: Run Locally With pip
 
 Recommended Python: 3.11 or 3.12.
-
-First clone the repository:
-
-```powershell
-git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
-cd utilizing-climate-rcm-datas
-```
 
 Windows PowerShell:
 
 ```powershell
+git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+cd utilizing-climate-rcm-datas
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -221,6 +138,8 @@ jupyter lab
 macOS/Linux:
 
 ```bash
+git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+cd utilizing-climate-rcm-datas
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -230,11 +149,10 @@ jupyter lab
 
 ## Running The Notebook
 
-Near the top of the notebook, choose:
+Near the top of the notebook, choose a region:
 
 ```python
 REGION_KEY = "sabah"
-MODELS_TO_RUN = ["ACCESS-CM2", "MIROC6"]
 ```
 
 Available regions:
@@ -243,6 +161,24 @@ Available regions:
 penisular
 sabah
 sarawak
+```
+
+Choose one model for a fast first run:
+
+```python
+MODELS_TO_RUN = ["ACCESS-CM2"]
+```
+
+Choose two or more models to show ensemble spread:
+
+```python
+MODELS_TO_RUN = ["ACCESS-CM2", "MIROC6"]
+```
+
+Run every available model:
+
+```python
+MODELS_TO_RUN = "all"
 ```
 
 When one model is selected, the plot shows that model directly. When more than one model is selected, the plot shows:

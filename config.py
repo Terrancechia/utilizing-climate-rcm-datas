@@ -1,9 +1,10 @@
 """
-Workshop configuration for V3-SEA-8 Malaysia climate data.
+Local workshop configuration for V3-SEA-8 Malaysia climate data.
 
 Edit the paths below if your downloaded data folders are in different
-locations. This file uses plain ASCII messages so it displays cleanly in
-Windows terminals, Jupyter, and Google Colab.
+locations, or set the environment variables V3SEA8_CCRS and V3SEA8_SHAPES.
+This file uses plain ASCII messages so it displays cleanly in Windows
+terminals and Jupyter.
 """
 
 from __future__ import annotations
@@ -12,16 +13,9 @@ import os
 from pathlib import Path
 
 
-def running_on_colab() -> bool:
-    try:
-        import google.colab  # type: ignore  # noqa: F401
-
-        return True
-    except Exception:
-        return False
-
-
 def first_existing(*paths: Path) -> Path:
+    """Return the first path that exists, or the first candidate as a fallback."""
+
     for path in paths:
         if path.exists():
             return path
@@ -29,29 +23,30 @@ def first_existing(*paths: Path) -> Path:
 
 
 WORKSHOP_DIR = Path(__file__).resolve().parent
-REPO_ROOT = WORKSHOP_DIR.parent
+PROJECT_ROOT = WORKSHOP_DIR.parent
 
 # Optional environment-variable overrides.
-# Examples:
-#   set V3SEA8_CCRS=C:\data\V3-SEA-8-CCRS-data
-#   set V3SEA8_SHAPES=C:\data\Malaysia-Shapefiles
+# Windows PowerShell examples:
+#   $env:V3SEA8_CCRS = "C:\data\V3-SEA-8-CCRS-data"
+#   $env:V3SEA8_SHAPES = "C:\data\Malaysia-Shapefiles"
 ENV_CCRS = os.environ.get("V3SEA8_CCRS")
 ENV_SHAPES = os.environ.get("V3SEA8_SHAPES")
 
-if running_on_colab():
-    DEFAULT_CCRS = Path("/content/drive/MyDrive/V3-SEA-8-data/CCRS")
-    DEFAULT_SHAPES = Path("/content/drive/MyDrive/V3-SEA-8-data/shapefiles")
-else:
-    DEFAULT_CCRS = first_existing(
-        REPO_ROOT / "V3-SEA-8" / "CCRS",
-        Path.home() / "Downloads" / "V3-SEA-8-CCRS-data",
-        Path.home() / "Downloads" / "V3-SEA-8-data" / "CCRS",
-    )
-    DEFAULT_SHAPES = first_existing(
-        REPO_ROOT,
-        Path.home() / "Downloads" / "Malaysia-Shapefiles",
-        Path.home() / "Downloads" / "V3-SEA-8-data" / "shapefiles",
-    )
+DEFAULT_CCRS = first_existing(
+    PROJECT_ROOT / "V3-SEA-8" / "CCRS",
+    PROJECT_ROOT / "CCRS",
+    WORKSHOP_DIR / "CCRS",
+    Path.home() / "Downloads" / "V3-SEA-8-CCRS-data",
+    Path.home() / "Downloads" / "V3-SEA-8-data" / "CCRS",
+)
+
+DEFAULT_SHAPES = first_existing(
+    PROJECT_ROOT,
+    PROJECT_ROOT / "shapefiles",
+    WORKSHOP_DIR / "shapefiles",
+    Path.home() / "Downloads" / "Malaysia-Shapefiles",
+    Path.home() / "Downloads" / "V3-SEA-8-data" / "shapefiles",
+)
 
 CCRS_DATA_PATH = Path(ENV_CCRS) if ENV_CCRS else DEFAULT_CCRS
 SHAPEFILES_PATH = Path(ENV_SHAPES) if ENV_SHAPES else DEFAULT_SHAPES
@@ -67,7 +62,7 @@ def validate_paths() -> None:
         errors.append(f"CCRS data folder not found:\n    {CCRS_DATA_PATH}")
         suggestions.append(
             "Download/extract the CCRS data, then either:\n"
-            "  1. edit CCRS_DATA_PATH in workshop/config.py, or\n"
+            "  1. edit CCRS_DATA_PATH in config.py, or\n"
             "  2. set environment variable V3SEA8_CCRS to the CCRS folder."
         )
     else:
@@ -94,7 +89,7 @@ def validate_paths() -> None:
         errors.append(f"Shapefiles folder not found:\n    {SHAPEFILES_PATH}")
         suggestions.append(
             "Download/extract the Malaysia shapefiles, then either:\n"
-            "  1. edit SHAPEFILES_PATH in workshop/config.py, or\n"
+            "  1. edit SHAPEFILES_PATH in config.py, or\n"
             "  2. set environment variable V3SEA8_SHAPES to the shapefile root."
         )
     else:
@@ -118,13 +113,16 @@ def validate_paths() -> None:
             print("\nSuggested fixes:")
             for suggestion in suggestions:
                 print(f"\n{suggestion}")
-        if running_on_colab():
-            print(
-                "\nColab note: mount Google Drive first, then place data under:\n"
-                "  /content/drive/MyDrive/V3-SEA-8-data/CCRS\n"
-                "  /content/drive/MyDrive/V3-SEA-8-data/shapefiles\n"
-                "or edit config.py to match your Drive folder."
-            )
+        print(
+            "\nRecommended local layout:\n"
+            "  project-folder/\n"
+            "    PENINSULAR_MALAYSIA/\n"
+            "    SABAH/\n"
+            "    SARAWAK/\n"
+            "    V3-SEA-8/CCRS/\n"
+            "    utilizing-climate-rcm-datas/\n"
+            "\nIf your folders are elsewhere, edit config.py to point at them."
+        )
         print("=" * 72)
         raise FileNotFoundError("Please fix the workshop data paths and rerun the cell.")
 
