@@ -149,6 +149,8 @@ MyDrive/V3-SEA-8-data/shapefiles
 2. Run the first setup cell in the notebook. It will:
    - install missing Python packages
    - mount Google Drive
+   - clone this GitHub repository into `/content/utilizing-climate-rcm-datas`
+   - switch the notebook working directory to `/content/utilizing-climate-rcm-datas/workshop`
    - validate the configured data paths
 3. If your data is in a different Drive folder, edit `workshop/config.py` or update the path variables in the notebook.
 
