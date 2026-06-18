@@ -1,4 +1,25 @@
+# Python/Jupyter
 .ipynb_checkpoints/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Generated workshop outputs
+outputs/
+
+# Local data folders, if participants place data beside the notebook
+V3-SEA-8-CCRS-data/
+Malaysia-Shapefiles/
+V3-SEA-8-data/
+CCRS/
+
+# OS/editor files
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/

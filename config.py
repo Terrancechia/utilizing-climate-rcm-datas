@@ -1,84 +1,140 @@
 """
-Workshop configuration for V3-SEA-8 Malaysia Climate Data
+Workshop configuration for V3-SEA-8 Malaysia climate data.
 
-This file helps locate your downloaded data files. Edit the paths below if your
-downloads went to different locations than expected.
+Edit the paths below if your downloaded data folders are in different
+locations. This file uses plain ASCII messages so it displays cleanly in
+Windows terminals, Jupyter, and Google Colab.
 """
 
+from __future__ import annotations
+
+import os
 from pathlib import Path
 
-# ============================================================================
-# CONFIGURE THESE PATHS
-# ============================================================================
-# Point these to wherever you downloaded the data files
 
-# Path to CCRS climate model data (contains: ACCESS-CM2/, EC-Earth3/, etc.)
-CCRS_DATA_PATH = Path.home() / "Downloads" / "V3-SEA-8-CCRS-data"
+def running_on_colab() -> bool:
+    try:
+        import google.colab  # type: ignore  # noqa: F401
 
-# Path to Malaysia shapefiles (contains: PENINSULAR_MALAYSIA/, SABAH/, SARAWAK/)
-SHAPEFILES_PATH = Path.home() / "Downloads" / "Malaysia-Shapefiles"
+        return True
+    except Exception:
+        return False
 
-# ============================================================================
-# VALIDATION (do not edit below this line)
-# ============================================================================
 
-def validate_paths():
-    """Check that all required data folders exist and provide helpful error messages."""
-    
-    errors = []
-    suggestions = []
-    
-    # Check CCRS
+def first_existing(*paths: Path) -> Path:
+    for path in paths:
+        if path.exists():
+            return path
+    return paths[0]
+
+
+WORKSHOP_DIR = Path(__file__).resolve().parent
+REPO_ROOT = WORKSHOP_DIR.parent
+
+# Optional environment-variable overrides.
+# Examples:
+#   set V3SEA8_CCRS=C:\data\V3-SEA-8-CCRS-data
+#   set V3SEA8_SHAPES=C:\data\Malaysia-Shapefiles
+ENV_CCRS = os.environ.get("V3SEA8_CCRS")
+ENV_SHAPES = os.environ.get("V3SEA8_SHAPES")
+
+if running_on_colab():
+    DEFAULT_CCRS = Path("/content/drive/MyDrive/V3-SEA-8-data/CCRS")
+    DEFAULT_SHAPES = Path("/content/drive/MyDrive/V3-SEA-8-data/shapefiles")
+else:
+    DEFAULT_CCRS = first_existing(
+        REPO_ROOT / "V3-SEA-8" / "CCRS",
+        Path.home() / "Downloads" / "V3-SEA-8-CCRS-data",
+        Path.home() / "Downloads" / "V3-SEA-8-data" / "CCRS",
+    )
+    DEFAULT_SHAPES = first_existing(
+        REPO_ROOT,
+        Path.home() / "Downloads" / "Malaysia-Shapefiles",
+        Path.home() / "Downloads" / "V3-SEA-8-data" / "shapefiles",
+    )
+
+CCRS_DATA_PATH = Path(ENV_CCRS) if ENV_CCRS else DEFAULT_CCRS
+SHAPEFILES_PATH = Path(ENV_SHAPES) if ENV_SHAPES else DEFAULT_SHAPES
+
+
+def validate_paths() -> None:
+    """Check required folders and print participant-friendly guidance."""
+
+    errors: list[str] = []
+    suggestions: list[str] = []
+
     if not CCRS_DATA_PATH.exists():
-        errors.append(f"❌ CCRS data folder not found at:\n    {CCRS_DATA_PATH}")
+        errors.append(f"CCRS data folder not found:\n    {CCRS_DATA_PATH}")
         suggestions.append(
-            f"   → Extract V3-SEA-8 CCRS download to: {CCRS_DATA_PATH}\n"
-            f"   → Or update CCRS_DATA_PATH in config.py"
+            "Download/extract the CCRS data, then either:\n"
+            "  1. edit CCRS_DATA_PATH in workshop/config.py, or\n"
+            "  2. set environment variable V3SEA8_CCRS to the CCRS folder."
         )
     else:
-        # Verify it has model subdirectories
-        model_dirs = [d for d in CCRS_DATA_PATH.iterdir() if d.is_dir()]
-        if not model_dirs:
-            errors.append(f"❌ CCRS folder is empty (no model folders found):\n    {CCRS_DATA_PATH}")
-    
-    # Check Shapefiles
-    if not SHAPEFILES_PATH.exists():
-        errors.append(f"❌ Shapefiles folder not found at:\n    {SHAPEFILES_PATH}")
-        suggestions.append(
-            f"   → Extract Malaysia shapefiles download to: {SHAPEFILES_PATH}\n"
-            f"   → Or update SHAPEFILES_PATH in config.py"
-        )
-    else:
-        # Verify it has regional subdirectories
-        expected_regions = {"PENINSULAR_MALAYSIA", "SABAH", "SARAWAK"}
-        found_regions = {d.name for d in SHAPEFILES_PATH.iterdir() if d.is_dir()}
-        missing = expected_regions - found_regions
-        if missing:
-            errors.append(
-                f"❌ Missing region folders in shapefiles:\n"
-                f"    Expected: {expected_regions}\n"
-                f"    Found: {found_regions}\n"
-                f"    Missing: {missing}"
+        expected_models = {
+            "ACCESS-CM2",
+            "EC-Earth3",
+            "MIROC6",
+            "MPI-ESM1-2-HR",
+            "NorESM2-MM",
+            "UKESM1-0-LL",
+        }
+        found_models = {path.name for path in CCRS_DATA_PATH.iterdir() if path.is_dir()}
+        missing_models = expected_models - found_models
+        if not found_models:
+            errors.append(f"CCRS folder has no model subfolders:\n    {CCRS_DATA_PATH}")
+        elif missing_models:
+            suggestions.append(
+                "CCRS folder was found, but some expected model folders are missing:\n"
+                f"  Missing: {sorted(missing_models)}\n"
+                "The notebook can still run if you select only models that exist."
             )
-    
-    # Report errors
+
+    if not SHAPEFILES_PATH.exists():
+        errors.append(f"Shapefiles folder not found:\n    {SHAPEFILES_PATH}")
+        suggestions.append(
+            "Download/extract the Malaysia shapefiles, then either:\n"
+            "  1. edit SHAPEFILES_PATH in workshop/config.py, or\n"
+            "  2. set environment variable V3SEA8_SHAPES to the shapefile root."
+        )
+    else:
+        expected_regions = {"PENINSULAR_MALAYSIA", "SABAH", "SARAWAK"}
+        found_regions = {path.name for path in SHAPEFILES_PATH.iterdir() if path.is_dir()}
+        missing_regions = expected_regions - found_regions
+        if missing_regions:
+            errors.append(
+                "Shapefile root is missing required region folders:\n"
+                f"    Root: {SHAPEFILES_PATH}\n"
+                f"    Missing: {sorted(missing_regions)}"
+            )
+
     if errors:
-        print("\n" + "=" * 70)
-        print("⚠️  DATA SETUP ERROR")
-        print("=" * 70)
+        print("\n" + "=" * 72)
+        print("DATA SETUP ERROR")
+        print("=" * 72)
         for error in errors:
             print(f"\n{error}")
-        print("\n" + "-" * 70)
-        print("SOLUTIONS:")
+        if suggestions:
+            print("\nSuggested fixes:")
+            for suggestion in suggestions:
+                print(f"\n{suggestion}")
+        if running_on_colab():
+            print(
+                "\nColab note: mount Google Drive first, then place data under:\n"
+                "  /content/drive/MyDrive/V3-SEA-8-data/CCRS\n"
+                "  /content/drive/MyDrive/V3-SEA-8-data/shapefiles\n"
+                "or edit config.py to match your Drive folder."
+            )
+        print("=" * 72)
+        raise FileNotFoundError("Please fix the workshop data paths and rerun the cell.")
+
+    print("Data paths validated successfully.")
+    print(f"  CCRS data:  {CCRS_DATA_PATH}")
+    print(f"  Shapefiles: {SHAPEFILES_PATH}")
+    if suggestions:
+        print("\nWarnings:")
         for suggestion in suggestions:
             print(suggestion)
-        print("\n" + "=" * 70)
-        raise FileNotFoundError("Please fix the paths in config.py and try again")
-    
-    print("✓ All data paths validated successfully")
-    print(f"  • CCRS data:     {CCRS_DATA_PATH}")
-    print(f"  • Shapefiles:    {SHAPEFILES_PATH}")
 
 
-# Run validation when config is imported
 validate_paths()

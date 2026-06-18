@@ -1,6 +1,6 @@
 # V3-SEA-8 Malaysia Climate Workshop
 
-This workshop shows how V3-SEA-8 climate data from multiple CMIP models can be used to compare historical and future climate conditions over Malaysia.
+This workshop demonstrates how V3-SEA-8 climate data from multiple CMIP models can be used to compare historical and future climate conditions over Malaysia.
 
 The first notebook focuses on annual mean near-surface air temperature (`tas`) for Peninsular Malaysia, Sabah, and Sarawak. It walks through the full workflow directly inside the notebook:
 
@@ -14,146 +14,233 @@ The first notebook focuses on annual mean near-surface air temperature (`tas`) f
 - compare historical, SSP1-2.6, SSP2-4.5, and SSP5-8.5
 - plot either a single-model result or a multi-model ensemble with shaded spread
 
-## Setup Instructions for Participants
+## Files In This Folder
 
-### Step 1: Download Files
-
-Download and extract **both** of these:
-
-1. **Workshop code** (from GitHub):
-   - Download: `V3-SEA-8-main.zip` from the repository
-   - Extract to any folder on your computer
-
-2. **CCRS Climate Data** (external link):
-   - Download and extract to: `~/Downloads/V3-SEA-8-CCRS-data/`
-   - (Or any location; you'll configure it in Step 3)
-
-3. **Malaysia Shapefiles** (external link):
-   - Download and extract to: `~/Downloads/Malaysia-Shapefiles/`
-   - (Or any location; you'll configure it in Step 3)
-
-### Step 2: Verify Folder Structure
-
-After extracting, your folders should look like this:
-
-```
-Your Computer:
-├── Downloads/
-│   ├── V3-SEA-8-CCRS-data/           ← Extract CCRS zip here
-│   │   ├── ACCESS-CM2/
-│   │   │   ├── historical/
-│   │   │   ├── ssp126/
-│   │   │   └── ... (other scenarios)
-│   │   ├── EC-Earth3/
-│   │   └── ... (other models)
-│   │
-│   └── Malaysia-Shapefiles/          ← Extract shapefiles zip here
-│       ├── PENINSULAR_MALAYSIA/
-│       │   ├── PM_Shapefile_Zone1/
-│       │   ├── PM_Shapefile_Zone2/
-│       │   └── PM_Shapefile_Zone3/
-│       ├── SABAH/
-│       │   ├── SBH_Shapefile_Zone1/
-│       │   └── SBH_Shapefile_Zone2/
-│       └── SARAWAK/
-│           ├── SRWK_Shapefile_Zone1/
-│           └── SRWK_Shapefile_Zone2/
-│
-└── Desktop/ (or anywhere)
-    └── V3-SEA-8-main/                ← Extracted GitHub repo
-        ├── PENINSULAR_MALAYSIA/
-        ├── SABAH/
-        ├── SARAWAK/
-        └── workshop/
-            ├── 01_tas_malaysia_timeseries_workshop.ipynb
-            ├── config.py              ← Path configuration file
-            ├── README.md
-            └── requirements.txt
+```text
+workshop/
+  01_tas_malaysia_timeseries_workshop.ipynb
+  config.py
+  README.md
+  requirements.txt
+  environment.yml
 ```
 
-### Step 3: Configure Paths (if needed)
+## Data You Need
 
-**Most users:** If you extracted CCRS data and shapefiles to your Downloads folder, skip this step—it should work automatically.
+You need two data downloads:
 
-**Alternative locations:** If you extracted files elsewhere:
+1. CCRS climate data folder containing model folders such as:
 
-1. Open `workshop/config.py` in a text editor
-2. Update these lines to match your file locations:
+```text
+ACCESS-CM2/
+EC-Earth3/
+MIROC6/
+MPI-ESM1-2-HR/
+NorESM2-MM/
+UKESM1-0-LL/
+```
+
+2. Malaysia shapefile folder containing:
+
+```text
+PENINSULAR_MALAYSIA/
+SABAH/
+SARAWAK/
+```
+
+The NetCDF data are large, so they are not expected to be committed directly to GitHub.
+
+## Recommended Data Layout
+
+Local layout beside the repository:
+
+```text
+V3-SEA-8/
+  PENINSULAR_MALAYSIA/
+  SABAH/
+  SARAWAK/
+  V3-SEA-8/
+    CCRS/
+      ACCESS-CM2/
+      EC-Earth3/
+      ...
+  workshop/
+    01_tas_malaysia_timeseries_workshop.ipynb
+```
+
+Alternative local layout in Downloads:
+
+```text
+Downloads/
+  V3-SEA-8-CCRS-data/
+    ACCESS-CM2/
+    EC-Earth3/
+    ...
+  Malaysia-Shapefiles/
+    PENINSULAR_MALAYSIA/
+    SABAH/
+    SARAWAK/
+```
+
+Google Colab layout in Google Drive:
+
+```text
+MyDrive/
+  V3-SEA-8-data/
+    CCRS/
+      ACCESS-CM2/
+      EC-Earth3/
+      ...
+    shapefiles/
+      PENINSULAR_MALAYSIA/
+      SABAH/
+      SARAWAK/
+```
+
+If your folders are somewhere else, edit `config.py`:
 
 ```python
-CCRS_DATA_PATH = Path.home() / "Downloads" / "V3-SEA-8-CCRS-data"
-SHAPEFILES_PATH = Path.home() / "Downloads" / "Malaysia-Shapefiles"
+CCRS_DATA_PATH = Path("path/to/your/CCRS")
+SHAPEFILES_PATH = Path("path/to/your/shapefiles")
 ```
 
-For example, if you extracted to Desktop instead:
+You can also set environment variables:
+
+```text
+V3SEA8_CCRS
+V3SEA8_SHAPES
+```
+
+## Option A: Run On Google Colab
+
+Colab avoids most local installation issues, but reading many large NetCDF files from Google Drive can be slower.
+
+Repository:
+
+```text
+https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+```
+
+Alternative Colab opening method:
+
+1. Go to `https://colab.research.google.com`
+2. Select `File -> Open notebook -> GitHub`
+3. Paste:
+
+```text
+https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+```
+
+4. Open:
+
+```text
+workshop/01_tas_malaysia_timeseries_workshop.ipynb
+```
+
+Data setup for Colab:
+
+1. Upload/extract the CCRS and shapefile data to Google Drive:
+
+```text
+MyDrive/V3-SEA-8-data/CCRS
+MyDrive/V3-SEA-8-data/shapefiles
+```
+
+2. Run the first setup cell in the notebook. It will:
+   - install missing Python packages
+   - mount Google Drive
+   - validate the configured data paths
+3. If your data is in a different Drive folder, edit `workshop/config.py` or update the path variables in the notebook.
+
+For workshops, start with one model or two models:
 
 ```python
-CCRS_DATA_PATH = Path.home() / "Desktop" / "V3-SEA-8-CCRS-data"
-SHAPEFILES_PATH = Path.home() / "Desktop" / "Malaysia-Shapefiles"
+MODELS_TO_RUN = ["ACCESS-CM2"]
 ```
 
-Or use absolute paths:
+or:
 
 ```python
-CCRS_DATA_PATH = Path("C:/Users/YourName/MyData/V3-SEA-8-CCRS-data")
-SHAPEFILES_PATH = Path("C:/Users/YourName/MyData/Malaysia-Shapefiles")
+MODELS_TO_RUN = ["ACCESS-CM2", "MIROC6"]
 ```
 
-### Step 4: Install Python Dependencies
+Then switch to the full ensemble when ready:
 
-From the `workshop` folder:
+```python
+MODELS_TO_RUN = "all"
+```
 
-**Windows (PowerShell):**
+## Option B: Run Locally With Conda
+
+This is the most reliable local setup for geospatial packages.
+
+First clone the repository:
+
+```powershell
+git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+cd utilizing-climate-rcm-datas\workshop
+```
+
+Then create the environment:
+
+```powershell
+conda env create -f environment.yml
+conda activate v3sea8-workshop
+jupyter lab
+```
+
+Open:
+
+```text
+01_tas_malaysia_timeseries_workshop.ipynb
+```
+
+## Option C: Run Locally With pip
+
+Recommended Python: 3.11 or 3.12.
+
+First clone the repository:
+
+```powershell
+git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+cd utilizing-climate-rcm-datas\workshop
+```
+
+Windows PowerShell:
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+jupyter lab
 ```
 
-**macOS/Linux (Terminal):**
+macOS/Linux:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-### Step 5: Start Jupyter and Run the Notebook
-
-Activate the virtual environment (if not already active), then:
-
-```powershell
 jupyter lab
 ```
 
-or:
-
-```powershell
-jupyter notebook
-```
-
-Open `01_tas_malaysia_timeseries_workshop.ipynb` and run the first cell. It will validate your paths and give you feedback.
-
 ## Running The Notebook
 
-Near the top of the notebook, choose the region and models:
+Near the top of the notebook, choose:
 
 ```python
 REGION_KEY = "sabah"
 MODELS_TO_RUN = ["ACCESS-CM2", "MIROC6"]
 ```
 
-For a quick test, use one model:
+Available regions:
 
-```python
-MODELS_TO_RUN = ["ACCESS-CM2"]
-```
-
-For the full ensemble:
-
-```python
-MODELS_TO_RUN = "all"
+```text
+penisular
+sabah
+sarawak
 ```
 
 When one model is selected, the plot shows that model directly. When more than one model is selected, the plot shows:
@@ -161,59 +248,58 @@ When one model is selected, the plot shows that model directly. When more than o
 - solid line: ensemble mean
 - shaded range: model minimum to model maximum
 
+The notebook writes caches and figures under:
+
+```text
+workshop/outputs/
+```
+
+Caches are intermediate processed files. They are safe to delete; the notebook will recompute them from the raw data.
+
 ## Troubleshooting
 
-### Error: "CCRS data folder not found"
+### CCRS data folder not found
 
-**Solution:**
-- Verify that the CCRS zip file was extracted to the expected location
-- Check that the extracted folder contains model subdirectories (ACCESS-CM2, EC-Earth3, etc.)
-- Edit `config.py` and update `CCRS_DATA_PATH` to match your actual download location
-- Run the notebook's first cell again to validate paths
+Check that the CCRS folder contains model folders such as `ACCESS-CM2` and `MIROC6`. Then update `config.py` or set `V3SEA8_CCRS`.
 
-### Error: "Shapefiles folder not found"
+### Shapefiles folder not found
 
-**Solution:**
-- Verify that the shapefiles zip file was extracted to the expected location
-- Check that the extracted folder contains: `PENINSULAR_MALAYSIA/`, `SABAH/`, `SARAWAK/`
-- Edit `config.py` and update `SHAPEFILES_PATH` to match your actual download location
-- Run the notebook's first cell again to validate paths
+Check that the shapefile root contains `PENINSULAR_MALAYSIA`, `SABAH`, and `SARAWAK`. Then update `config.py` or set `V3SEA8_SHAPES`.
 
-### Error: "Missing region folders in shapefiles"
+### ModuleNotFoundError
 
-**Solution:**
-- The shapefile archive might have an extra nested folder
-- Try extracting one level higher in the hierarchy
-- Verify the three region folders exist: `PENINSULAR_MALAYSIA/`, `SABAH/`, `SARAWAK/`
+Make sure your environment is activated, then reinstall dependencies:
 
-### Error: "ModuleNotFoundError: No module named 'xarray'" or similar
+```powershell
+pip install -r requirements.txt
+```
 
-**Solution:**
-- Ensure you activated the virtual environment:
-  - **Windows:** `.\.venv\Scripts\Activate.ps1`
-  - **macOS/Linux:** `source .venv/bin/activate`
-- Reinstall dependencies: `pip install -r requirements.txt`
+If `geopandas` fails with pip, use the conda setup instead:
 
-### Error: No output or plots appear
+```powershell
+conda env create -f environment.yml
+```
 
-**Solution:**
-- Run the notebook cells in order (top to bottom)
-- If caching is enabled, check `outputs/tas/cache/` for existing CSV files
-- Try setting `USE_CACHE = False` in the notebook to force recomputation
+### Notebook is slow
 
-### Still having issues?
+Use one model first:
 
-Contact the workshop organizer with:
-- The full error message
-- Your operating system (Windows/macOS/Linux)
-- The output of `python --version` and `pip list` (in your virtual environment)
-- The paths you configured in `config.py`
+```python
+MODELS_TO_RUN = ["ACCESS-CM2"]
+```
 
-## Notes For GitHub
+The full six-model ensemble can take substantially longer.
 
-The NetCDF climate files are large and should not be committed directly to GitHub. Keep the data folders external and provide download links:
+### Plots do not change after editing settings
 
-- CCRS climate model data: [external link to download]
-- Malaysia shapefiles: [external link to download]
+Run cells from the top again, especially the settings and computation cells. If needed, set:
 
-The notebook writes caches and outputs to `workshop/outputs/`, which is safe to commit or ignore as needed.
+```python
+USE_CACHE = False
+```
+
+to force recomputation.
+
+## GitHub Notes
+
+Do not commit large NetCDF climate data to GitHub. Keep data external and provide download links. The `.gitignore` ignores generated outputs and common local environment folders.
