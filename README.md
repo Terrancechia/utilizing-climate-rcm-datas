@@ -101,25 +101,11 @@ $env:V3SEA8_CCRS = "C:\path\to\CCRS"
 $env:V3SEA8_SHAPES = "C:\path\to\Malaysia-Shapefiles"
 ```
 
-## Option A: Run Locally With Conda
+# Starting Setup For This Workshop
 
-This is the recommended setup because geospatial packages are usually smoother with conda.
+Before opening the notebook, create a Python environment and install the required packages. After that, launch JupyterLab and choose the matching kernel for the notebook.
 
-```powershell
-git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
-cd utilizing-climate-rcm-datas
-conda env create -f environment.yml
-conda activate v3sea8-workshop
-jupyter lab
-```
-
-Open:
-
-```text
-01_tas_malaysia_timeseries_workshop.ipynb
-```
-
-## Option B: Run Locally With pip
+## Option A: Run Locally With pip
 
 Recommended Python: 3.11 or 3.12.
 
@@ -131,7 +117,8 @@ cd utilizing-climate-rcm-datas
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+python -m pip install ipykernel
 jupyter lab
 ```
 
@@ -146,6 +133,57 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 jupyter lab
 ```
+
+## Option B: Run Locally With Conda
+
+This is a good alternative if `geopandas` or other geospatial packages are difficult to install with pip.
+
+```powershell
+git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
+cd utilizing-climate-rcm-datas
+conda env create -f environment.yml
+conda activate v3sea8-workshop
+jupyter lab
+```
+
+## Choosing The Notebook Kernel
+
+After JupyterLab opens, open:
+
+```text
+01_tas_malaysia_timeseries_workshop.ipynb
+```
+
+Then choose the kernel/environment that matches the setup you used.
+
+If you used pip, choose the kernel that looks like one of these:
+
+```text
+.venv
+Python (.venv)
+Python 3.x (.venv)
+```
+
+Or choose the interpreter path like:
+
+```text
+...\utilizing-climate-rcm-datas\.venv\Scripts\python.exe
+```
+
+If you used conda, make sure the environment is activated before launching Jupyter:
+
+```powershell
+conda activate v3sea8-workshop
+jupyter lab
+```
+
+Then choose:
+
+```text
+v3sea8-workshop
+```
+
+Run Cell 0 after selecting the kernel. If Cell 0 says the required packages can be imported, the correct environment is selected.
 
 ## Running The Notebook
 
