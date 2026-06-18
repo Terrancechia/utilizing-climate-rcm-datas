@@ -14,15 +14,14 @@ The first notebook focuses on annual mean near-surface air temperature (`tas`) f
 - compare historical, SSP1-2.6, SSP2-4.5, and SSP5-8.5
 - plot either a single-model result or a multi-model ensemble with shaded spread
 
-## Files In This Folder
+## Files In This Repository
 
 ```text
-workshop/
-  01_tas_malaysia_timeseries_workshop.ipynb
-  config.py
-  README.md
-  requirements.txt
-  environment.yml
+01_tas_malaysia_timeseries_workshop.ipynb
+config.py
+README.md
+requirements.txt
+environment.yml
 ```
 
 ## Data You Need
@@ -64,8 +63,9 @@ V3-SEA-8/
       ACCESS-CM2/
       EC-Earth3/
       ...
-  workshop/
+  utilizing-climate-rcm-datas/
     01_tas_malaysia_timeseries_workshop.ipynb
+    config.py
 ```
 
 Alternative local layout in Downloads:
@@ -134,7 +134,7 @@ https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
 4. Open:
 
 ```text
-workshop/01_tas_malaysia_timeseries_workshop.ipynb
+01_tas_malaysia_timeseries_workshop.ipynb
 ```
 
 Data setup for Colab:
@@ -150,9 +150,9 @@ MyDrive/V3-SEA-8-data/shapefiles
    - install missing Python packages
    - mount Google Drive
    - clone this GitHub repository into `/content/utilizing-climate-rcm-datas`
-   - switch the notebook working directory to `/content/utilizing-climate-rcm-datas/workshop`
+   - switch the notebook working directory to `/content/utilizing-climate-rcm-datas`
    - validate the configured data paths
-3. If your data is in a different Drive folder, edit `workshop/config.py` or update the path variables in the notebook.
+3. If your data is in a different Drive folder, edit `config.py` or update the path variables in the notebook.
 
 For workshops, start with one model or two models:
 
@@ -180,7 +180,7 @@ First clone the repository:
 
 ```powershell
 git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
-cd utilizing-climate-rcm-datas\workshop
+cd utilizing-climate-rcm-datas
 ```
 
 Then create the environment:
@@ -205,7 +205,7 @@ First clone the repository:
 
 ```powershell
 git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
-cd utilizing-climate-rcm-datas\workshop
+cd utilizing-climate-rcm-datas
 ```
 
 Windows PowerShell:
@@ -253,7 +253,7 @@ When one model is selected, the plot shows that model directly. When more than o
 The notebook writes caches and figures under:
 
 ```text
-workshop/outputs/
+outputs/
 ```
 
 Caches are intermediate processed files. They are safe to delete; the notebook will recompute them from the raw data.
