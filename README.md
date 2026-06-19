@@ -158,7 +158,7 @@ This is a good alternative if `geopandas` or other geospatial packages are diffi
 
 ```powershell
 git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
-cd utilizing-climate-rcm-datas
+cd utilizing-climate-rcm-datas #depends on the folder name where the notebook exists
 conda env create -f environment.yml
 conda activate v3sea8-workshop
 ```
@@ -249,8 +249,15 @@ Python (v3sea8-workshop)
 ```
 
 ## Running The Notebook
+Make sure there is the venv bracket in the environment, else if the library still fail to set up, run the troubleshoot 
+cell below cell 0 to install the dependencies
+In the TAS notebook, choose a region near the top. Use all Malaysia:
 
-In the TAS notebook, choose a region near the top:
+```python
+REGION_KEY = "malaysia"
+```
+
+Or focus on one subregion:
 
 ```python
 REGION_KEY = "sabah"
@@ -259,6 +266,7 @@ REGION_KEY = "sabah"
 Available regions:
 
 ```text
+malaysia
 penisular
 sabah
 sarawak
