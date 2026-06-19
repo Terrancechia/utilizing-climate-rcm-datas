@@ -1,6 +1,6 @@
 # V3-SEA-8 Malaysia Climate Workshop
 
-This workshop demonstrates how V3-SEA-8 climate data from multiple CMIP models can be used to compare historical and future annual mean near-surface air temperature (`tas`) over Malaysia.
+This workshop demonstrates how V3-SEA-8 climate data from multiple CMIP models can be used to compare historical and future climate conditions over Malaysia.
 
 The notebook is designed for a local IDE workflow, such as VS Code, JupyterLab, or classic Jupyter Notebook. Running the raw NetCDF workflow directly from Google Colab is not recommended because large NetCDF/HDF5 reads from mounted Google Drive can fail unpredictably.
 
@@ -8,6 +8,7 @@ The notebook is designed for a local IDE workflow, such as VS Code, JupyterLab, 
 
 ```text
 01_tas_malaysia_timeseries_workshop.ipynb
+02_rx1day_malaysia_seasonal_change_workshop.ipynb
 config.py
 README.md
 requirements.txt
@@ -15,6 +16,8 @@ environment.yml
 ```
 
 ## What The Notebook Does
+
+The TAS notebook:
 
 - inspect the model and scenario folder structure
 - open an example NetCDF file with `xarray`
@@ -25,6 +28,16 @@ environment.yml
 - convert absolute temperature to anomaly relative to that baseline
 - compare historical, SSP1-2.6, SSP2-4.5, and SSP5-8.5
 - plot either a single-model result or a multi-model ensemble with shaded spread
+
+The RX1day notebook:
+
+- inspect monthly `rx1day` NetCDF files
+- merge the Malaysia shapefiles or focus on one selected region
+- convert monthly RX1day data into DJF, MAM, JJA, and SON seasonal values
+- compute 1995-2014 historical seasonal climatology
+- compute 2080-2099 SSP5-8.5 seasonal climatology
+- calculate percentage change per model first, then average the percentage-change maps across selected models
+- plot four seasonal percentage-change maps with a shared horizontal colour bar
 
 ## Data You Need
 
@@ -103,7 +116,7 @@ $env:V3SEA8_SHAPES = "C:\path\to\Malaysia-Shapefiles"
 
 # Starting Setup For This Workshop
 
-Before opening the notebook, create a Python environment and install the required packages. After that, launch JupyterLab and choose the matching kernel for the notebook.
+Before opening the notebook, create a Python environment and install the required packages. You can then run the notebook either in VS Code or in browser-based JupyterLab.
 
 ## Option A: Run Locally With pip
 
@@ -118,8 +131,13 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python -m pip install ipykernel
-jupyter lab
+python -m pip install ipykernel jupyterlab
+```
+
+If you are using Windows Command Prompt instead of PowerShell, activate the environment with:
+
+```cmd
+.venv\Scripts\activate.bat
 ```
 
 macOS/Linux:
@@ -130,8 +148,8 @@ cd utilizing-climate-rcm-datas
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
-jupyter lab
+python -m pip install -r requirements.txt
+python -m pip install ipykernel jupyterlab
 ```
 
 ## Option B: Run Locally With Conda
@@ -143,20 +161,21 @@ git clone https://github.com/Terrancechia/utilizing-climate-rcm-datas.git
 cd utilizing-climate-rcm-datas
 conda env create -f environment.yml
 conda activate v3sea8-workshop
-jupyter lab
 ```
 
-## Choosing The Notebook Kernel
+## Open The Notebook In VS Code
 
-After JupyterLab opens, open:
+1. Open VS Code.
+2. Open the repository folder `utilizing-climate-rcm-datas`.
+3. Open `01_tas_malaysia_timeseries_workshop.ipynb`.
+4. Click `Select Kernel` at the top right of the notebook.
+5. If you used pip, choose the interpreter that looks like:
 
 ```text
-01_tas_malaysia_timeseries_workshop.ipynb
+...\utilizing-climate-rcm-datas\.venv\Scripts\python.exe
 ```
 
-Then choose the kernel/environment that matches the setup you used.
-
-If you used pip, choose the kernel that looks like one of these:
+It may also appear as:
 
 ```text
 .venv
@@ -164,30 +183,74 @@ Python (.venv)
 Python 3.x (.venv)
 ```
 
-Or choose the interpreter path like:
+If you used conda, choose:
 
 ```text
-...\utilizing-climate-rcm-datas\.venv\Scripts\python.exe
+v3sea8-workshop
 ```
 
-If you used conda, make sure the environment is activated before launching Jupyter:
+Then run Cell 0. If Cell 0 says the required packages can be imported, the correct environment is selected.
+
+## Open The Notebook In JupyterLab
+
+If you used pip, activate the virtual environment and launch JupyterLab:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+jupyter lab
+```
+
+If `jupyter lab` is not recognized, install JupyterLab into the active environment:
+
+```powershell
+python -m pip install jupyterlab
+jupyter lab
+```
+
+If you used conda:
 
 ```powershell
 conda activate v3sea8-workshop
 jupyter lab
 ```
 
-Then choose:
+After JupyterLab opens in the browser, open one of the workshop notebooks:
 
 ```text
-v3sea8-workshop
+01_tas_malaysia_timeseries_workshop.ipynb
+02_rx1day_malaysia_seasonal_change_workshop.ipynb
 ```
 
-Run Cell 0 after selecting the kernel. If Cell 0 says the required packages can be imported, the correct environment is selected.
+If JupyterLab only shows `Python 3 (ipykernel)` and you are not sure whether it is the correct environment, run this in the notebook:
+
+```python
+import sys
+print(sys.executable)
+```
+
+For pip, the output should include:
+
+```text
+.venv\Scripts\python.exe
+```
+
+For conda, the output should include the `v3sea8-workshop` environment path.
+
+If you want JupyterLab to show a clearer kernel name, run this once after activating the environment:
+
+```powershell
+python -m ipykernel install --user --name v3sea8-workshop --display-name "Python (v3sea8-workshop)"
+```
+
+Then restart JupyterLab and choose:
+
+```text
+Python (v3sea8-workshop)
+```
 
 ## Running The Notebook
 
-Near the top of the notebook, choose a region:
+In the TAS notebook, choose a region near the top:
 
 ```python
 REGION_KEY = "sabah"
@@ -219,10 +282,30 @@ Run every available model:
 MODELS_TO_RUN = "all"
 ```
 
-When one model is selected, the plot shows that model directly. When more than one model is selected, the plot shows:
+In the RX1day notebook, the default region is all Malaysia:
+
+```python
+REGION_KEY = "malaysia"
+```
+
+You can also focus on one region:
+
+```python
+REGION_KEY = "penisular"  # or "sabah", "sarawak"
+```
+
+The RX1day notebook uses SSP5-8.5 by default:
+
+```python
+FUTURE_SCENARIO = "ssp585"
+```
+
+For the TAS time-series notebook, when one model is selected, the plot shows that model directly. When more than one model is selected, the plot shows:
 
 - solid line: ensemble mean
 - shaded range: model minimum to model maximum
+
+For the RX1day seasonal map notebook, when more than one model is selected, percentage change is calculated per model first and then averaged across the selected models.
 
 The notebook writes caches and figures under:
 
